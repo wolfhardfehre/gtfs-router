@@ -74,8 +74,8 @@ CREATE INDEX trip_id_index ON trips (trip_id);
 
 create table stop_times (
 	trip_id char(30) references trips(trip_id),
-	arrival_time time NOT NULL,
-	departure_time time NOT NULL,
+	arrival_time interval NOT NULL,
+	departure_time interval NOT NULL,
 	stop_id char(30) references stops(stop_id),
 	stop_sequence integer NOT NULL,
 	stop_headsign char(100),
