@@ -1,0 +1,39 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.2.71'
+}
+
+group 'nice.fontaine'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "com.github.salomonbrys.kotson:kotson:2.5.0"
+    implementation "com.opencsv:opencsv:4.4"
+    implementation "com.github.debop:koda-time:1.2.1"
+    implementation "org.jxmapviewer:jxmapviewer2:2.2"
+    implementation "com.helger:jcodemodel:2.8.0"
+    // database
+    implementation "org.jetbrains.exposed:exposed:0.11.2"
+    implementation "org.postgresql:postgresql:9.4.1208"
+    implementation "net.postgis:postgis-jdbc:2.3.0"
+    // only to suppress warnings
+    implementation "org.slf4j:slf4j-simple:1.6.1"
+
+    testImplementation "junit:junit:4.12"
+    testImplementation "com.natpryce:hamkrest:1.4.2.0"
+    testImplementation "org.mockito:mockito-core:2.5.0"
+    testImplementation "com.nhaarman:mockito-kotlin:1.3.0"
+    testImplementation "com.willowtreeapps.assertk:assertk-jvm:0.12"
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
