@@ -5,33 +5,33 @@ import pandas as pd
 
 class Graph:
 
-    def __init__(self, stop_times):      
-        self.graph = self._build_adjacancies(stop_times)
+    def __init__(self, merged_tables):      
+        self.graph = self._build_adjacancies(merged_tables)
 
-    def _build_adjacancies(self, stop_times):
+    def _build_adjacancies(self, merged_tables):
 
         adjacancy_dict = defaultdict(list)
 
-        trip_groups = stop_times.groupby('trip_id')
+        trip_groups = merged_tables.groupby('trip_id')
 
-        stop_times[['to_stop_id', 'to_arrival_time']] = trip_groups[['stop_id', 'arrival_time']].shift(-1)
-        stop_times = stop_times.dropna(subset = ['to_stop_id', 'to_arrival_time'])
-        stop_times['weight'] = (pd.to_datetime(stop_times['to_arrival_time']) - pd.to_datetime(stop_times['arrival_time'])).dt.total_seconds()
+        merged_tables[['to_stop_id', 'to_arrival_time']] = trip_groups[['stop_id', 'arrival_time']].shift(-1)
+        merged_tables = merged_tables.dropna(subset = ['to_stop_id', 'to_arrival_time'])
+        merged_tables['weight'] = (pd.to_datetime(merged_tables['to_arrival_time']) - pd.to_datetime(merged_tables['arrival_time'])).dt.total_seconds()
 
-        for _, row in stop_times.iterrows():            
-            adjacancy_dict[row.stop_id].append((row.to_stop_id, row.weight))
+        for _, row in merged_tables.iterrows():            
+            adjacancy_dict[row.stop_id].append((row.to_stop_id, row.weight, row.arrival_time, row.trip_id))
 
         for stop_id, node_adjacancies in adjacancy_dict.items():
             node_adjacancies.sort(key = lambda x: x[1])
             adjacancy_dict[stop_id] = list(map(
-                lambda x: {'to_stop_id': int(x[0]), 'weight': x[1]}, node_adjacancies))
+                lambda x: {'to_stop_id': int(x[0]), 'weight': x[1], 'arrival_time': x[2], 'trip_id' : x[3]}, node_adjacancies))
 
         return adjacancy_dict
 
  
 class Dijkstra:
 
-    def __init__(self, graph, source_id, dest_id):
+    def __init__(self, graph, source_id, trip_id, started_at, dest_id):
         self.graph = graph.graph
         self.nodes = self._nodes()
         self.not_visited = self.nodes.copy()
@@ -39,8 +39,8 @@ class Dijkstra:
         self.dest_id = dest_id
         self.shortest_path = []
         self.total_distance = float('inf')
-        # self.not_visited.remove(source_id)
-        self.visit(source_id, 0, [] + [source_id])
+        self.visit(source_id, 0, [] + [(source_id, trip_id)], started_at)
+
 
     def _nodes(self):
         s = set(self.graph.keys())
@@ -49,7 +49,7 @@ class Dijkstra:
                 s.add(node['to_stop_id'])
         return list(s)
 
-    def visit(self, node_id, total_distance, current_sequence):
+    def visit(self, node_id, total_distance, current_sequence, current_time):
         # import pdb; pdb.set_trace()
         if self.shortest_path:
             return self.shortest_path
@@ -62,14 +62,16 @@ class Dijkstra:
             return
         self.min_distances[node_id] = total_distance
 
-        for node in self.graph[node_id]:
-            next_node_id = node['to_stop_id']
-            distance_to_next_node = node['weight']
+        for next_node in self.graph[node_id]:
+            next_node_id = next_node['to_stop_id']
+            next_node_trip_id = next_node['trip_id']
+            distance_to_next_node = next_node['weight']
+
             if next_node_id in self.not_visited:
-                self.visit(next_node_id, distance_to_next_node + total_distance, current_sequence + [next_node_id])
-        # self.not_visited.append(node_id)
+                self.visit(next_node_id, distance_to_next_node + total_distance, current_sequence + [(next_node_id, next_node_trip_id)], current_time)
 
-
+    def time_to_next_node(node_id, next_node):
+        pass
     
 #  1  function Dijkstra(Graph, source):
 #  2
