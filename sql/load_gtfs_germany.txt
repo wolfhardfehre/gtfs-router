@@ -1,0 +1,56 @@
+-----------------------------------------------------------------------------------------
+-- COMMAND LINE
+
+----------
+-- general
+----------
+
+psql -d <database> -c 'COPY <table> FROM STDIN WITH CSV HEADER' < <filename>.txt
+
+-------------
+-- hard coded
+-------------
+
+psql -d gtfs_production -c 'COPY stops FROM STDIN WITH CSV HEADER' < stops.txt
+psql -d gtfs_production -c 'COPY agencies FROM STDIN WITH CSV HEADER' < agency.txt
+psql -d gtfs_production -c 'COPY routes FROM STDIN WITH CSV HEADER' < routes.txt
+psql -d gtfs_production -c 'COPY calendar FROM STDIN WITH CSV HEADER' < calendar.txt
+psql -d gtfs_production -c 'COPY calendar_dates FROM STDIN WITH CSV HEADER' < calendar_dates.txt
+psql -d gtfs_production -c 'COPY trips FROM STDIN WITH CSV HEADER' < trips.txt
+psql -d gtfs_production -c 'COPY stop_times FROM STDIN WITH CSV HEADER' < stop_times.txt
+
+-----------------------------------------------------------------------------------------
+-- SQL
+
+-------------
+-- new column
+-------------
+
+ALTER TABLE IF EXISTS stops ADD COLUMN geom geometry;
+
+-----------------
+-- build geometry
+-----------------
+
+UPDATE stops SET geom=ST_MakePoint(stop_lon, stop_lat);
+
+-------------------
+-- spatial indexing
+-------------------
+
+DROP INDEX IF EXISTS station_gix CASCADE;
+DROP INDEX IF EXISTS route_gix CASCADE;
+
+CREATE INDEX station_gix ON stations_by_routes USING GIST (Geography(geom));
+CREATE INDEX route_gix ON routes_in_lines USING GIST (Geography(geom));
+
+------------------------
+-- find stations near by
+------------------------
+
+SELECT * FROM stations_by_routes
+  WHERE ST_DWithin(
+    Geography(geom),
+    Geography(ST_MakePoint(13.425900, 52.480901)),
+    300 --meters
+  );
