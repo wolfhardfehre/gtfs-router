@@ -32,21 +32,8 @@ class Application {
 }
 
 fun main(args: Array<String>) {
-    /*val app = Application()
-    app.simulate()*/
-
-    val mockApi = MockConnectionApi.createAndStart()
-    GlobalScope.launch(Dispatchers.IO) {
-        val request = mockApi.getConnection(Request())
-        try {
-            val response = request.await()
-            println(response)
-        } catch (e: HttpException) {
-            println(e.code())
-        } catch (e: Throwable) {
-            println("Ooops: Something else went wrong: $e")
-        }
-    }
+    val app = Application()
+    app.simulate()
 }
 
 
