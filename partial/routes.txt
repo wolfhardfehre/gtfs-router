@@ -1,0 +1,4 @@
+"route_id","agency_id","route_short_name","route_long_name","route_type","route_color","route_text_color","route_desc"
+17522_700,796,"U7","",700,"","",""
+17523_400,796,"U7","",400,"","",""
+17525_400,796,"U8","",400,"","",""
