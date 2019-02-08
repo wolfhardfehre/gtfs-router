@@ -48,7 +48,7 @@ CREATE INDEX route_id_index ON routes (route_id);
 
 create table stops (
 	stop_id char(30) PRIMARY KEY,
-    stop_code char(30),
+  stop_code char(30),
 	stop_name char(100) NOT NULL,
 	stop_desc char(100),
 	stop_lat double precision NOT NULL,
@@ -59,9 +59,9 @@ create table stops (
 CREATE INDEX stop_id_index ON stops (stop_id);
 
 create table trips (
-    trip_id char(30) PRIMARY KEY,
 	route_id char(30),
 	service_id integer NOT NULL,
+  trip_id char(30) PRIMARY KEY,
 	trip_short_name char(100) NOT NULL,
 	trip_headsign char(100) NOT NULL,
 	direction_id integer NOT NULL,
@@ -106,15 +106,14 @@ create table calendar_dates (
 CREATE INDEX calendar_date_id_index ON calendar_dates (service_id);
 
 create table shapes (
-	shape_id integer PRIMARY KEY,
-	shape_pt_sequence integer NOT NULL,
+	shape_id integer,
 	shape_pt_lat double precision NOT NULL,
-	shape_pt_lon double precision NOT NULL
+	shape_pt_lon double precision NOT NULL,
+	shape_pt_sequence integer NOT NULL
 );
 CREATE INDEX shape_id_index ON shapes (shape_id);
 
 create table transfers (
-	id integer PRIMARY KEY,
 	from_stop_id char(30) NOT NULL,
 	to_stop_id char(30) NOT NULL,
 	transfer_type integer NOT NULL,
@@ -124,4 +123,3 @@ create table transfers (
 	from_trip_id char(30),
 	to_trip_id char(30)
 );
-CREATE INDEX transfer_id_index ON transfers (id);
